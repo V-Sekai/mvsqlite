@@ -16,6 +16,6 @@ build-patched-sqlite3:
 			-LC:/Users/elee/scoop/apps/openssl-mingw/current/lib64 -L../target/release -lmvsqlite -lpthread -lm -lcrypto -lws2_32 -lbcrypt -luserenv -lntdll
 
 clean:
-	rm -f libmvsqlite_preload.so preload.o shim.o
+	rm -f libmvsqlite_preload.so preload.o shim.o sqlite3.exe sqlite3
 
 .PHONY: clean
