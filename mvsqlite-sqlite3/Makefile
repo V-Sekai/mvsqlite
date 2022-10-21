@@ -13,7 +13,7 @@ build-patched-sqlite3:
 		-DSQLITE_ENABLE_MATH_FUNCTIONS \
 		-DSQLITE_ENABLE_COLUMN_METADATA \
 		./sqlite3.c ./shim.c ./shell.c \
-			-LC:/Users/elee/scoop/apps/openssl-mingw/current/lib64 -L../target/release -lmvsqlite -lpthread -lm -lcrypto -lws2_32 -lbcrypt -luserenv -lntdll
+			-L$(USERPROFILE)/scoop/apps/openssl-mingw/current/lib64 -L../target/release -lmvsqlite -lpthread -lm -lcrypto -lws2_32 -lbcrypt -luserenv -lntdll
 
 clean:
 	rm -f libmvsqlite_preload.so preload.o shim.o sqlite3.exe sqlite3
