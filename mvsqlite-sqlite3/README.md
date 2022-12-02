@@ -3,7 +3,7 @@
 ```bat
 cmd
 scoop uninstall llvm-mingw
-scoop install llvm openssl-mingw llvm-mingw
+scoop install llvm openssl-mingw mingw
 cargo build --release -p mvsqlite
 cd mvsqlite-sqlite3
 mingw32-make.exe build-patched-sqlite3
