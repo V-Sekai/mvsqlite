@@ -3,7 +3,7 @@
 ```bat
 cmd
 scoop uninstall llvm-mingw
-scoop install llvm openssl-mingw llvm-mingw
+scoop install llvm openssl-mingw
 cargo build --release -p mvsqlite
 cd mvsqlite-sqlite3
 set CC="%userprofile%/scoop/apps/mingw/current/bin/x86_64-w64-mingw32-gcc.exe"
