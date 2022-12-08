@@ -1,6 +1,11 @@
 # mvsqlite for Windows
 
 ```bat
+REM for windows
+REM scoop install llvm-mingw@20220323
+```
+
+```bat
 cmd
 scoop uninstall llvm-mingw
 scoop install llvm openssl-mingw
