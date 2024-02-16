@@ -175,7 +175,6 @@ pub async fn release_nslock(
 
     // We get here when rollback is required
     // Scan and delete
-    let mut total_count = 0u64;
 
     // Snapshot read is correct here - running through a range twice is fine
     let mut rollback_cursor = u32::from_le_bytes(
