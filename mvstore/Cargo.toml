@@ -1,6 +1,6 @@
 [package]
 name = "mvstore"
-version = "0.3.0-beta.1"
+version = "0.3.0"
 edition = "2021"
 license = "Apache-2.0"
 authors = ["Heyang Zhou <heyang.zhou@icloud.com>"]
@@ -29,11 +29,11 @@ tracing-subscriber = { version = "0.3.16", features = ["env-filter", "fmt", "jso
 foundationdb = "0.7.0"
 structopt = "0.3.26"
 hyper = { version = "0.14.20", features = ["full"] }
-url = "2.2.2"
+url = "2.3.1"
 hex = "0.4.3"
 serde = { version = "1", features = ["derive"] }
-rmp-serde = "1.1.0"
-bytes = { version = "1.2.1", features = ["serde"] }
+rmp-serde = "1.1.1"
+bytes = { version = "1.4.0", features = ["serde"] }
 tokio-util = { version = "0.7.3", features = ["io", "codec"] }
 futures = "0.3"
 blake3 = "1.3.1"
