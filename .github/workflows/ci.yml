@@ -36,7 +36,7 @@ jobs:
       - name: Build (patched libsqlite3)
         run: |
           set -e
-          curl -fL -o sqlite.zip https://www.sqlite.org/2023/sqlite-amalgamation-3410000.zip
+          curl -fL -o sqlite.zip https://www.sqlite.org/2024/sqlite-amalgamation-3450100.zip
           unzip sqlite.zip
           cp sqlite-amalgamation-3410000/sqlite3.c ./mvsqlite-preload/
           cd mvsqlite-preload
