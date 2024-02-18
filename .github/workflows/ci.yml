@@ -491,6 +491,60 @@ jobs:
             MVSQLITE_DATA_PLANE=http://localhost:7000 \
             RUST_LOG=off \
             ./res/ci/ycsb.sh ycsb "${{ matrix.workload }}"
+  virtual-worlds:
+    name: virtual-worlds
+    runs-on: ubuntu-20.04
+    needs:
+    - build
+    - build-ycsb
+    strategy:
+      matrix:
+        workload: [workloada, workloadc]
+        content_cache_size: ["5000", "20000"]
+        wire_zstd: ["", "--wire-zstd"]
+        include:
+          - workload: workloadb
+            content_cache_size: "10000"
+            wire_zstd: ""
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install system dependencies
+        run: |
+          set -e
+          curl -L https://github.com/apple/foundationdb/releases/download/7.1.53/foundationdb-clients_7.1.53-1_amd64.deb --output fdb-client.deb
+          sudo dpkg -i fdb-client.deb
+          curl -L https://github.com/apple/foundationdb/releases/download/7.1.53/foundationdb-server_7.1.53-1_amd64.deb --output fdb-server.deb
+          sudo dpkg -i fdb-server.deb
+          sudo apt update && sudo apt install -y libfuse3-3
+      - name: Fetch binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: ./build
+      - name: Fetch go-ycsb
+        uses: actions/download-artifact@v2
+        with:
+          name: go-ycsb
+          path: ./go-ycsb
+      - name: Run it
+        run: |
+          set -e
+          chmod +x ./build/mvstore
+          chmod +x ./go-ycsb/go-ycsb
+          RUST_LOG=error ./build/mvstore --data-plane 127.0.0.1:7000 --admin-api 127.0.0.1:7001 --metadata-prefix mvstore-test --raw-data-prefix m \
+            --content-cache-size "${{ matrix.content_cache_size }}" \
+            ${{ matrix.wire_zstd }} &
+          sleep 1
+
+          # Preload mode
+          curl -f http://localhost:7001/api/create_namespace -d '{"key":"ycsb","metadata":""}'
+          PRELOAD_PATH="$PWD/build/libmvsqlite_preload.so" \
+            MVSQLITE_PAGE_CACHE_SIZE=50000 \
+            MVSQLITE_DATA_PLANE=http://localhost:7000 \
+            RUST_LOG=off \
+            ./res/ci/ycsb.sh ycsb "${{ matrix.workload }}" -threads 2
+
   release:
     name: Release
     needs:
