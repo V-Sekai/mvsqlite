@@ -453,6 +453,9 @@ jobs:
           - workload: workloadc
             content_cache_size: "0"
             wire_zstd: ""
+          - workload: workloadc
+            content_cache_size: "10000"
+            wire_zstd: "--wire-zstd"
     steps:
       - name: Checkout
         uses: actions/checkout@v2
