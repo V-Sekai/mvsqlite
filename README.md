@@ -25,7 +25,7 @@ Grab the latest binaries from the [Releases](https://github.com/losfair/mvsqlite
 
 ## Quick reference
 
-Check the single-page [mvSQLite Quick Reference](https://blob.univalent.net/mvsqlite-quick-reference-v0-2.pdf) for common operations with mvSQLite.
+Check the [mvSQLite Quick Reference](https://github.com/V-Sekai/mvsqlite/wiki/Quick-Reference) for common operations with mvSQLite.
 
 ## Try it
 
