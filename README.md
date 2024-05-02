@@ -1,6 +1,6 @@
 # mvSQLite
 
-Distributed, MVCC SQLite that runs on top of [FoundationDB](https://github.com/apple/foundationdb).
+Distributed, MVCC SQLite that runs on top of [FoundationDB](https://github.com/apple/foundationdb) modified by V-Sekai (https://github.com/V-Sekai).
 
 [Documentation](https://github.com/losfair/mvsqlite/wiki/)
 
