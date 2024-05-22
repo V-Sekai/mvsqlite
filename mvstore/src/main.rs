@@ -21,7 +21,7 @@ use foundationdb::{api::FdbApiBuilder, options::NetworkOption};
 use futures::Future;
 use hyper::service::{make_service_fn, service_fn};
 use server::{Server, ServerConfig};
-use structopt::StructOpt;
+use clap::Parser;
 use tracing_subscriber::{fmt::SubscriberBuilder, EnvFilter};
 
 fn main() -> Result<()> {
@@ -61,27 +61,27 @@ fn main() -> Result<()> {
     res
 }
 
-#[derive(Debug, StructOpt)]
-#[structopt(name = "mvstore", about = "mvsqlite store service")]
+#[derive(Debug, Parser)]
+#[clap(name = "mvstore", about = "mvsqlite store service")]
 struct Opt {
     /// Data plane listen address.
-    #[structopt(long, env = "MVSTORE_DATA_PLANE")]
+    #[clap(long, env = "MVSTORE_DATA_PLANE")]
     data_plane: Option<SocketAddr>,
 
     /// Admin API listen address.
-    #[structopt(long, env = "MVSTORE_ADMIN_API")]
+    #[clap(long, env = "MVSTORE_ADMIN_API")]
     admin_api: Option<SocketAddr>,
 
     /// Output log in JSON format.
-    #[structopt(long)]
+    #[clap(long)]
     json: bool,
 
     /// Enable FDB buggify. DO NOT USE IN PRODUCTION!
-    #[structopt(long)]
+    #[clap(long)]
     fdb_buggify: bool,
 
     /// Path to FoundationDB cluster file.
-    #[structopt(
+    #[clap(
         long,
         default_value = "/etc/foundationdb/fdb.cluster",
         env = "MVSTORE_CLUSTER"
@@ -89,51 +89,51 @@ struct Opt {
     cluster: String,
 
     /// Data prefix. This value is NOT tuple-encoded, for maximum efficiency.
-    #[structopt(long, env = "MVSTORE_RAW_DATA_PREFIX")]
+    #[clap(long, env = "MVSTORE_RAW_DATA_PREFIX")]
     raw_data_prefix: String,
 
     /// Metadata prefix. This value is tuple-encoded as a string.
-    #[structopt(long, env = "MVSTORE_METADATA_PREFIX")]
+    #[clap(long, env = "MVSTORE_METADATA_PREFIX")]
     metadata_prefix: String,
 
     /// Auto create namespace on request
-    #[structopt(long)]
+    #[clap(long)]
     auto_create_namespace: bool,
 
     /// Content cache size in number of pages.
-    #[structopt(long, env = "MVSTORE_CONTENT_CACHE_SIZE", default_value = "0")]
+    #[clap(long, env = "MVSTORE_CONTENT_CACHE_SIZE", default_value = "0")]
     content_cache_size: usize,
 
     /// Enable ZSTD compression over the wire.
-    #[structopt(long)]
+    #[clap(long)]
     wire_zstd: bool,
 
     /// Whether this instance is read-only. This enables replica-read from FDB DR replica.
-    #[structopt(long)]
+    #[clap(long)]
     read_only: bool,
 
     /// DR tag to use if this instance is read-only.
-    #[structopt(long, env = "MVSTORE_DR_TAG", default_value = "default")]
+    #[clap(long, env = "MVSTORE_DR_TAG", default_value = "default")]
     dr_tag: String,
 
     /// ADVANCED. Configure the GC scan batch size.
-    #[structopt(long, env = "MVSTORE_KNOB_GC_SCAN_BATCH_SIZE")]
+    #[clap(long, env = "MVSTORE_KNOB_GC_SCAN_BATCH_SIZE")]
     knob_gc_scan_batch_size: Option<usize>,
 
     /// ADVANCED. Configure the max time-to-live for unreferenced fresh pages. This will also be the max time an SQLite transaction can be active.
-    #[structopt(long, env = "MVSTORE_KNOB_GC_FRESH_PAGE_TTL_SECS")]
+    #[clap(long, env = "MVSTORE_KNOB_GC_FRESH_PAGE_TTL_SECS")]
     knob_gc_fresh_page_ttl_secs: Option<u64>,
 
     /// ADVANCED. Configure the threshold (in number of pages) above which multi-phase commit is enabled (inclusive).
-    #[structopt(long, env = "MVSTORE_KNOB_COMMIT_MULTI_PHASE_THRESHOLD")]
+    #[clap(long, env = "MVSTORE_KNOB_COMMIT_MULTI_PHASE_THRESHOLD")]
     knob_commit_multi_phase_threshold: Option<usize>,
 
     /// ADVANCED. Configure the threshold (in number of pages) below which page-level conflict check is enabled (inclusive).
-    #[structopt(long, env = "MVSTORE_KNOB_PLCC_READ_SET_SIZE_THRESHOLD")]
+    #[clap(long, env = "MVSTORE_KNOB_PLCC_READ_SET_SIZE_THRESHOLD")]
     knob_plcc_read_set_size_threshold: Option<usize>,
 
     /// ADVANCED. Configure the nslock rollback scan batch size.
-    #[structopt(long, env = "MVSTORE_KNOB_NSLOCK_ROLLBACK_SCAN_BATCH_SIZE")]
+    #[clap(long, env = "MVSTORE_KNOB_NSLOCK_ROLLBACK_SCAN_BATCH_SIZE")]
     knob_nslock_rollback_scan_batch_size: Option<usize>,
 }
 
