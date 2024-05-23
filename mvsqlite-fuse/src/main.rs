@@ -81,7 +81,7 @@ async fn main() -> Result<()> {
         std::process::abort();
     }));
 
-    let opt: Opt = Opt::from_args();
+    let opt: Opt = Opt::parse();
     let namespaces = opt
         .namespaces
         .split(',')

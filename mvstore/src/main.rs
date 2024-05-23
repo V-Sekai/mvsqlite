@@ -24,44 +24,7 @@ use server::{Server, ServerConfig};
 use clap::Parser;
 use tracing_subscriber::{fmt::SubscriberBuilder, EnvFilter};
 
-fn main() -> Result<()> {
-    let opt = Opt::from_args();
-    if opt.json {
-        SubscriberBuilder::default()
-            .with_env_filter(EnvFilter::from_default_env())
-            .json()
-            .init();
-    } else {
-        SubscriberBuilder::default()
-            .with_env_filter(EnvFilter::from_default_env())
-            .pretty()
-            .init();
-    }
-    let mut network_builder = FdbApiBuilder::default()
-        .build()
-        .expect("fdb api initialization failed");
-    if opt.fdb_buggify {
-        tracing::error!("fdb_buggify is enabled");
-        network_builder = network_builder
-            .set_option(NetworkOption::ClientBuggifyEnable)
-            .unwrap()
-            .set_option(NetworkOption::ClientBuggifySectionActivatedProbability(100))
-            .unwrap();
-    }
-    let network = unsafe { network_builder.boot() }.expect("fdb network initialization failed");
-
-    // Have fun with the FDB API
-    let res = tokio::runtime::Builder::new_multi_thread()
-        .enable_all()
-        .build()
-        .unwrap()
-        .block_on(async { async_main(opt).await });
-
-    drop(network); // required for safety
-    res
-}
-
-#[derive(Debug, Parser)]
+#[derive(Parser, Debug)]
 #[clap(name = "mvstore", about = "mvsqlite store service")]
 struct Opt {
     /// Data plane listen address.
@@ -135,6 +98,43 @@ struct Opt {
     /// ADVANCED. Configure the nslock rollback scan batch size.
     #[clap(long, env = "MVSTORE_KNOB_NSLOCK_ROLLBACK_SCAN_BATCH_SIZE")]
     knob_nslock_rollback_scan_batch_size: Option<usize>,
+}
+
+fn main() -> Result<()> {
+    let opt = Opt::parse();
+    if opt.json {
+        SubscriberBuilder::default()
+            .with_env_filter(EnvFilter::from_default_env())
+            .json()
+            .init();
+    } else {
+        SubscriberBuilder::default()
+            .with_env_filter(EnvFilter::from_default_env())
+            .pretty()
+            .init();
+    }
+    let mut network_builder = FdbApiBuilder::default()
+        .build()
+        .expect("fdb api initialization failed");
+    if opt.fdb_buggify {
+        tracing::error!("fdb_buggify is enabled");
+        network_builder = network_builder
+            .set_option(NetworkOption::ClientBuggifyEnable)
+            .unwrap()
+            .set_option(NetworkOption::ClientBuggifySectionActivatedProbability(100))
+            .unwrap();
+    }
+    let network = unsafe { network_builder.boot() }.expect("fdb network initialization failed");
+
+    // Have fun with the FDB API
+    let res = tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()
+        .unwrap()
+        .block_on(async { async_main(opt).await });
+
+    drop(network); // required for safety
+    res
 }
 
 async fn async_main(opt: Opt) -> Result<()> {

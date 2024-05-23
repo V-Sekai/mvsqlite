@@ -46,4 +46,4 @@ heapless = { version = "0.7", features = ["serde"] }
 lmdb-rkv = "0.14.0"
 bumpalo = "3.11.1"
 itertools = "0.10.5"
-clap = { version = "3.2.20", features = ["derive", "env"] }
+clap = { version = "4.5.4", features = ["derive", "env"] }
