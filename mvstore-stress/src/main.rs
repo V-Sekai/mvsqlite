@@ -54,7 +54,7 @@ struct Opt {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let opt = Opt::from_args();
+    let opt = Opt::parse();
 
     if opt.json {
         SubscriberBuilder::default()
