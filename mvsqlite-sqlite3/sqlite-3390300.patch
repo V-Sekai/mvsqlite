@@ -1,5 +1,5 @@
 --- sqlite3.c   2022-09-05 11:28:58.000000000 +0000
-+++ sqlite3-mv.c        2022-10-07 08:03:02.699008373 +0000
++++ sqlite3.c        2022-10-07 08:03:02.699008373 +0000
 @@ -3931,7 +3931,7 @@
    const void *filename,   /* Database filename (UTF-16) */
    sqlite3 **ppDb          /* OUT: SQLite db handle */
@@ -12,7 +12,7 @@
 @@ -5132,6 +5132,7 @@
  ** by sqlite3_step().  The use of the "vX" interfaces is recommended.
  */
- SQLITE_API int sqlite3_step(sqlite3_stmt*);
+-SQLITE_API int sqlite3_step(sqlite3_stmt*);
 +SQLITE_API int real_sqlite3_step(sqlite3_stmt*);
  
  /*

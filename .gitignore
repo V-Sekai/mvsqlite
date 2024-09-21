@@ -9,3 +9,5 @@ target/
 mvsqlite-sqlite3/sqlite3.exe
 
 mvsqlite-sqlite3/test
+
+.DS_Store
