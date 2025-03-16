@@ -21,7 +21,6 @@ sudo dpkg -i foundationdb-server_7.1.15-1_amd64.deb
 
 2. Build, run `mvstore`, create a namespace with the admin API, build `libsqlite3` and the `sqlite3` CLI, set environment variables, and run the shell. Detailed instructions can be found in the [wiki](https://github.com/V-Sekai/mvsqlite/wiki).
 
-
 ```bash
 cargo build --release -p mvstore
 RUST_LOG=info ./mvstore \
