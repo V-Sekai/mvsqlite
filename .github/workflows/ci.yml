@@ -4,6 +4,97 @@ on:
   schedule:
     - cron: "10 * * * *"
 jobs:
+  ycsb-postgres-workloadf:
+    runs-on: ubuntu-20.04
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ycsb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Install Python 2
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python2
+
+      - name: Download YCSB and PostgreSQL JDBC driver
+        run: |
+          wget https://github.com/brianfrankcooper/YCSB/releases/download/0.17.0/ycsb-0.17.0.tar.gz
+          tar xfvz ycsb-0.17.0.tar.gz
+          # Modify YCSB script to use Python 2
+          sed -i '1s/python/python2/' ycsb-0.17.0/bin/ycsb
+          wget -P ycsb-0.17.0/lib/ https://jdbc.postgresql.org/download/postgresql-42.6.0.jar
+
+      - name: Create workload configuration
+        run: |
+          mkdir -p workloads
+          cat > ./workloads/workloadf <<EOL
+          workload=site.ycsb.workloads.CoreWorkload
+          readallfields=true
+          readproportion=0.5
+          updateproportion=0.5
+          scanproportion=0
+          insertproportion=0
+          requestdistribution=zipfian
+          recordcount=100000
+          operationcount=100000
+          fieldcount=3
+          fieldlength=100
+          EOL
+
+      - name: Create database table
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -d ycsb -c \
+            "CREATE TABLE IF NOT EXISTS usertable (
+              ycsb_key VARCHAR(255) PRIMARY KEY,
+              field0 TEXT,
+              field1 TEXT,
+              field2 TEXT
+            );"
+
+      - name: Load initial data
+        run: |
+          cd ycsb-0.17.0
+          ./bin/ycsb load jdbc -s -P ../workloads/workloadf \
+            -p db.driver=org.postgresql.Driver \
+            -p db.url=jdbc:postgresql://localhost:5432/ycsb \
+            -p db.user=postgres \
+            -p db.passwd=postgres \
+            -p jdbc.fetchsize=10 \
+            -p jdbc.autocommit=true \
+            -p db.batchsize=1000
+
+      - name: Run Workload F
+        run: |
+          cd ycsb-0.17.0
+          ./bin/ycsb run jdbc -s -P ../workloads/workloadf \
+            -p db.driver=org.postgresql.Driver \
+            -p db.url=jdbc:postgresql://localhost:5432/ycsb \
+            -p db.user=postgres \
+            -p db.passwd=postgres \
+            -p jdbc.fetchsize=10 \
+            -p jdbc.autocommit=true \
+            -p db.batchsize=1000
+
   build:
     name: Build
     runs-on: ubuntu-20.04
