@@ -66,6 +66,7 @@ jobs:
         with:
           name: build
           path: ./build
+
   build-deb:
     name: Build DEB
     runs-on: ubuntu-20.04
@@ -83,7 +84,7 @@ jobs:
           curl -L https://github.com/apple/foundationdb/releases/download/7.1.53/foundationdb-clients_7.1.53-1_amd64.deb --output fdb-client.deb
           sudo dpkg -i fdb-client.deb
           cargo install cargo-deb
-          sudo apt update && sudo apt install -y libfuse3-dev # stop cargo from complaining, not really needed
+          sudo apt update && sudo apt install -y libfuse3-dev
       - name: Build mvstore
         run: cd mvstore && cargo deb && cd .. && mkdir deb && cp ./target/debian/*.deb ./deb/
       - name: Push
@@ -91,11 +92,24 @@ jobs:
         with:
           name: deb
           path: ./deb
+
+  setup-postgres:
+    name: Setup PostgreSQL
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Install PostgreSQL
+        run: |
+          sudo apt update
+          sudo apt install -y postgresql postgresql-contrib libpq-dev
+          sudo systemctl start postgresql
+          sudo -u postgres psql -c "CREATE USER ycsb WITH PASSWORD 'ycsb';"
+          sudo -u postgres psql -c "CREATE DATABASE ycsb;"
+          sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE ycsb TO ycsb;"
+
   stress:
     name: mvstore stress test
     runs-on: ubuntu-20.04
-    needs:
-      - build
+    needs: [build]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -435,43 +449,41 @@ jobs:
         with:
           name: go-ycsb
           path: ./go-ycsb/bin/go-ycsb
+
   ycsb:
     name: ycsb
     runs-on: ubuntu-20.04
-    needs:
-      - build
-      - build-ycsb
+    needs: [build, build-ycsb, setup-postgres]
     strategy:
       matrix:
-        workload: [workloadb]
+        workload: [workloada, workloadb, workloadc, workloadf]
+        database: [mvssqlite, postgresql]
         content_cache_size: ["0", "10000"]
         wire_zstd: ["", "--wire-zstd"]
+        exclude:
+          - database: postgresql
+            content_cache_size: "10000"
+          - database: postgresql
+            wire_zstd: "--wire-zstd"
         include:
-          - workload: workloada
+          - database: postgresql
             content_cache_size: "0"
             wire_zstd: ""
-          - workload: workloadc
-            content_cache_size: "0"
-            wire_zstd: ""
-          - workload: workloadc
-            content_cache_size: "10000"
-            wire_zstd: "--wire-zstd"
-          - workload: workloadf
-            content_cache_size: "10000"
-            wire_zstd: "--wire-zstd"
-            
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install system dependencies
         run: |
           set -e
-          curl -L https://github.com/apple/foundationdb/releases/download/7.1.53/foundationdb-clients_7.1.53-1_amd64.deb --output fdb-client.deb
-          sudo dpkg -i fdb-client.deb
-          curl -L https://github.com/apple/foundationdb/releases/download/7.1.53/foundationdb-server_7.1.53-1_amd64.deb --output fdb-server.deb
-          sudo dpkg -i fdb-server.deb
-          sudo apt update && sudo apt install -y libfuse3-3
+          sudo apt install -y libfuse3-3
+          if [ "${{ matrix.database }}" = "mvssqlite" ]; then
+            curl -L https://github.com/apple/foundationdb/releases/download/7.1.53/foundationdb-clients_7.1.53-1_amd64.deb --output fdb-client.deb
+            sudo dpkg -i fdb-client.deb
+            curl -L https://github.com/apple/foundationdb/releases/download/7.1.53/foundationdb-server_7.1.53-1_amd64.deb --output fdb-server.deb
+            sudo dpkg -i fdb-server.deb
+          fi
       - name: Fetch binaries
+        if: matrix.database == 'mvssqlite'
         uses: actions/download-artifact@v4
         with:
           name: build
@@ -481,25 +493,43 @@ jobs:
         with:
           name: go-ycsb
           path: ./go-ycsb
-      - name: Run it
+      - name: Run benchmark
         run: |
           set -e
-          chmod +x ./build/mvstore
           chmod +x ./go-ycsb/go-ycsb
-          RUST_LOG=error ./build/mvstore --data-plane 127.0.0.1:7000 --admin-api 127.0.0.1:7001 --metadata-prefix mvstore-test --raw-data-prefix m \
-            --content-cache-size "${{ matrix.content_cache_size }}" \
-            ${{ matrix.wire_zstd }} &
-          sleep 1
-
-          # Preload mode
-          curl -f http://localhost:7001/api/create_namespace -d '{"key":"ycsb","metadata":""}'
-          PRELOAD_PATH="$PWD/build/libmvsqlite_preload.so" \
-            MVSQLITE_PAGE_CACHE_SIZE=50000 \
-            MVSQLITE_SECTOR_SIZE=16384 \
-            MVSQLITE_FORCE_HTTP2=1 \
-            MVSQLITE_DATA_PLANE=http://localhost:7000 \
-            RUST_LOG=off \
-            ./res/ci/ycsb.sh ycsb "${{ matrix.workload }}"
+          if [ "${{ matrix.database }}" = "mvssqlite" ]; then
+            RUST_LOG=error ./build/mvstore --data-plane 127.0.0.1:7000 --admin-api 127.0.0.1:7001 \
+              --metadata-prefix mvstore-test --raw-data-prefix m \
+              --content-cache-size "${{ matrix.content_cache_size }}" \
+              ${{ matrix.wire_zstd }} &
+            sleep 1
+            curl -f http://localhost:7001/api/create_namespace -d '{"key":"ycsb","metadata":""}'
+            PRELOAD_PATH="$PWD/build/libmvsqlite_preload.so" \
+              MVSQLITE_PAGE_CACHE_SIZE=50000 \
+              MVSQLITE_SECTOR_SIZE=16384 \
+              MVSQLITE_FORCE_HTTP2=1 \
+              MVSQLITE_DATA_PLANE=http://localhost:7000 \
+              RUST_LOG=off \
+              ./res/ci/ycsb.sh ycsb "${{ matrix.workload}}"
+          elif [ "${{ matrix.database }}" = "postgresql" ]; then
+            sudo -u postgres psql -U ycsb -d ycsb -c "DROP TABLE IF EXISTS usertable;"
+            sudo -u postgres psql -U ycsb -d ycsb -c "CREATE TABLE usertable (
+              YCSB_KEY VARCHAR(255) PRIMARY KEY,
+              FIELD0 TEXT, FIELD1 TEXT, FIELD2 TEXT
+            );"
+            ./go-ycsb/go-ycsb load postgres -P ./workloads/${{ matrix.workload }} \
+              -p pg.host=localhost \
+              -p pg.port=5432 \
+              -p pg.user=ycsb \
+              -p pg.password=ycsb \
+              -p pg.dbname=ycsb
+            ./go-ycsb/go-ycsb run postgres -P ./workloads/${{ matrix.workload }} \
+              -p pg.host=localhost \
+              -p pg.port=5432 \
+              -p pg.user=ycsb \
+              -p pg.password=ycsb \
+              -p pg.dbname=ycsb
+          fi
 
   release:
     name: Release
