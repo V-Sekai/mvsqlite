@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -62,7 +62,7 @@ jobs:
           execstack -q ./build/libmvsqlite_preload.so | tee execstack.log
           grep -v '^X ' execstack.log
       - name: Push binaries
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build
           path: ./build
@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -87,7 +87,7 @@ jobs:
       - name: Build mvstore
         run: cd mvstore && cargo deb && cd .. && mkdir deb && cp ./target/debian/*.deb ./deb/
       - name: Push
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: deb
           path: ./deb
@@ -98,7 +98,7 @@ jobs:
       - build
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install system dependencies
         run: |
           set -e
@@ -107,7 +107,7 @@ jobs:
           curl -L https://github.com/apple/foundationdb/releases/download/7.1.53/foundationdb-server_7.1.53-1_amd64.deb --output fdb-server.deb
           sudo dpkg -i fdb-server.deb
       - name: Fetch binaries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build
           path: ./build
@@ -127,7 +127,7 @@ jobs:
       - build
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install system dependencies
         run: |
           set -e
@@ -136,7 +136,7 @@ jobs:
           curl -L https://github.com/apple/foundationdb/releases/download/7.1.53/foundationdb-server_7.1.53-1_amd64.deb --output fdb-server.deb
           sudo dpkg -i fdb-server.deb
       - name: Fetch binaries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build
           path: ./build
@@ -155,7 +155,7 @@ jobs:
       - build
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install system dependencies
         run: |
           set -e
@@ -164,7 +164,7 @@ jobs:
           curl -L https://github.com/apple/foundationdb/releases/download/7.1.53/foundationdb-server_7.1.53-1_amd64.deb --output fdb-server.deb
           sudo dpkg -i fdb-server.deb
       - name: Fetch binaries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build
           path: ./build
@@ -184,7 +184,7 @@ jobs:
       - build
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install system dependencies
         run: |
           set -e
@@ -193,7 +193,7 @@ jobs:
           curl -L https://github.com/apple/foundationdb/releases/download/7.1.53/foundationdb-server_7.1.53-1_amd64.deb --output fdb-server.deb
           sudo dpkg -i fdb-server.deb
       - name: Fetch binaries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build
           path: ./build
@@ -214,7 +214,7 @@ jobs:
       - build
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install system dependencies
         run: |
           set -e
@@ -223,7 +223,7 @@ jobs:
           curl -L https://github.com/apple/foundationdb/releases/download/7.1.53/foundationdb-server_7.1.53-1_amd64.deb --output fdb-server.deb
           sudo dpkg -i fdb-server.deb
       - name: Fetch binaries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build
           path: ./build
@@ -245,7 +245,7 @@ jobs:
       - build
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install system dependencies
         run: |
           set -e
@@ -254,7 +254,7 @@ jobs:
           curl -L https://github.com/apple/foundationdb/releases/download/7.1.53/foundationdb-server_7.1.53-1_amd64.deb --output fdb-server.deb
           sudo dpkg -i fdb-server.deb
       - name: Fetch binaries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build
           path: ./build
@@ -276,7 +276,7 @@ jobs:
       - build
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install system dependencies
         run: |
           set -e
@@ -285,7 +285,7 @@ jobs:
           curl -L https://github.com/apple/foundationdb/releases/download/7.1.53/foundationdb-server_7.1.53-1_amd64.deb --output fdb-server.deb
           sudo dpkg -i fdb-server.deb
       - name: Fetch binaries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build
           path: ./build
@@ -309,7 +309,7 @@ jobs:
       - build
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install system dependencies
         run: |
           set -e
@@ -318,7 +318,7 @@ jobs:
           curl -L https://github.com/apple/foundationdb/releases/download/7.1.53/foundationdb-server_7.1.53-1_amd64.deb --output fdb-server.deb
           sudo dpkg -i fdb-server.deb
       - name: Fetch binaries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build
           path: ./build
@@ -344,7 +344,7 @@ jobs:
       - build
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install system dependencies
         run: |
           set -e
@@ -353,7 +353,7 @@ jobs:
           curl -L https://github.com/apple/foundationdb/releases/download/7.1.53/foundationdb-server_7.1.53-1_amd64.deb --output fdb-server.deb
           sudo dpkg -i fdb-server.deb
       - name: Fetch binaries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build
           path: ./build
@@ -379,7 +379,7 @@ jobs:
       - build
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install system dependencies
         run: |
           set -e
@@ -389,7 +389,7 @@ jobs:
           sudo dpkg -i fdb-server.deb
           sudo apt update && sudo apt install -y libfuse3-dev
       - name: Fetch binaries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build
           path: ./build
@@ -423,7 +423,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Build
         run: |
           git clone https://github.com/V-Sekai/go-ycsb.git
@@ -431,7 +431,7 @@ jobs:
           git checkout 855480a2485fe407df4b42c4d38a78e7d5786403
           make
       - name: Push binaries
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: go-ycsb
           path: ./go-ycsb/bin/go-ycsb
@@ -462,7 +462,7 @@ jobs:
             
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Install system dependencies
         run: |
           set -e
@@ -472,12 +472,12 @@ jobs:
           sudo dpkg -i fdb-server.deb
           sudo apt update && sudo apt install -y libfuse3-3
       - name: Fetch binaries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: build
           path: ./build
       - name: Fetch go-ycsb
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: go-ycsb
           path: ./go-ycsb
@@ -515,11 +515,11 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build
           path: ./build
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: deb
           path: ./deb
